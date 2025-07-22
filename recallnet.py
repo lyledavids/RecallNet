@@ -71,6 +71,22 @@ def trade_to_custom_token(amount: str, from_symbol: str, to_address: str):
     from_token = REPUTABLE_TOKENS[from_symbol]
     execute_trade(from_token, to_address, amount, reason=f"{from_symbol} to custom ERC20")
 
+def trade_from_custom_token(amount: str, from_address: str, to_symbol: str):
+    print(f"\n🔍 Preparing trade: {amount} from {from_address} → {to_symbol}")
+
+    if to_symbol not in REPUTABLE_TOKENS:
+        print(f"❌ '{to_symbol}' is not in the reputable token list.")
+        print("✔️  Valid options:", ", ".join(REPUTABLE_TOKENS.keys()))
+        return
+
+    if not (from_address.startswith("0x") and len(from_address) == 42):
+        print(f"❌ Invalid ERC-20 address: {from_address}")
+        return
+
+    to_token = REPUTABLE_TOKENS[to_symbol]
+    execute_trade(from_address, to_token, amount, reason=f"Custom ERC20 to {to_symbol}")
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -101,6 +117,16 @@ if __name__ == "__main__":
         from_symbol = sys.argv[3].upper()
         to_address = sys.argv[4]
         trade_to_custom_token(amount, from_symbol, to_address)
+
+    elif command == "custom-to-list":
+        if len(sys.argv) != 5:
+            print("❌ Usage: python3 recall_trade.py custom-to-list <amount> <FROM_ADDRESS> <TO_SYMBOL>")
+            sys.exit(1)
+        amount = sys.argv[2]
+        from_address = sys.argv[3]
+        to_symbol = sys.argv[4].upper()
+        trade_from_custom_token(amount, from_address, to_symbol)
+
 
     else:
         print("❌ Unknown command:", command)
